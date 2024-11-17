@@ -1,24 +1,45 @@
+Docker Compose Configuration
+
 version: '3.8'
+
 services:
   frontend:
     build: ./frontend
     ports:
       - '3000:3000'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8000
     depends_on:
       - backend
+
   backend:
     build: ./backend
     ports:
       - '8000:8000'
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=1
+      - DJANGO_SECRET_KEY=your-secret-key-here
+      - DATABASE_URL=postgres://youruser:yourpassword@database:5432/yourdb
     depends_on:
       - database
+
   database:
     image: postgres:13
+    ports:
+      - '5432:5432'
     environment:
-      - POSTGRES_USER=youruser
-      - POSTGRES_PASSWORD=yourpassword
-      - POSTGRES_DB=yourdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=H0rnt0ad!
+      - POSTGRES_DB=Tame_It
     volumes:
       - db_data:/var/lib/postgresql/data/
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
 volumes:
   db_data:
